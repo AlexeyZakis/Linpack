@@ -1,4 +1,4 @@
-package com.example.linpack.presentation.screens.template
+package com.example.linpack.presentation.screens.linpack
 
 sealed class LinpackScreenAction {
     data class OnMatrixSizeChanged(val matrixSize: Int) : LinpackScreenAction()

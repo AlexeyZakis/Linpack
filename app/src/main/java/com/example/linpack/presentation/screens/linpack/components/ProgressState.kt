@@ -1,7 +1,8 @@
-package com.example.linpack.presentation.screens.template.components
+package com.example.linpack.presentation.screens.linpack.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -10,28 +11,33 @@ import androidx.compose.ui.unit.dp
 import com.example.linpack.R
 import com.example.linpack.presentation.screens.generalComponents.TextWithName
 import com.example.linpack.presentation.theme.AppTheme
+import com.example.linpack.presentation.theme.themeColors
 
 @Composable
-fun Results(
-    durationSec: Double,
-    mFlops: Double,
+fun ProgressState(
     cores: Int,
     matrixSize: Int,
+    isCancelling: Boolean,
+    progressPercentage: Int,
     modifier: Modifier = Modifier,
 ) {
-    val roundedMFlops = "%.2f".format(mFlops)
-
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier,
     ) {
-        TextWithName(
-            name = stringResource(id = R.string.linpackFlops),
-            text = "${roundedMFlops}MFlops"
+        val progressText = if (isCancelling) {
+            stringResource(R.string.cancelling)
+        } else {
+            stringResource(R.string.inProgress)
+        }
+        Text(
+            text = progressText,
+            color = themeColors.red,
+            modifier = modifier,
         )
         TextWithName(
-            name = stringResource(id = R.string.linpackDuration),
-            text = "${durationSec}s"
+            name = stringResource(id = R.string.progress),
+            text = "$progressPercentage%"
         )
         TextWithName(
             name = stringResource(id = R.string.cores),
@@ -46,13 +52,13 @@ fun Results(
 
 @Preview
 @Composable
-private fun ResultsPreview() {
+private fun ProgressStatePreview() {
     AppTheme {
-        Results(
-            durationSec = 0.01,
-            mFlops = 1.24,
+        ProgressState(
             cores = 8,
-            matrixSize = 120,
+            matrixSize = 240,
+            progressPercentage = 67,
+            isCancelling = false,
         )
     }
 }

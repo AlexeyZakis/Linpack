@@ -1,4 +1,4 @@
-package com.example.linpack.presentation.screens.template.components
+package com.example.linpack.presentation.screens.linpack.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

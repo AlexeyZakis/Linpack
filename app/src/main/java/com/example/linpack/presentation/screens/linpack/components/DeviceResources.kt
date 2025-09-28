@@ -1,4 +1,4 @@
-package com.example.linpack.presentation.screens.template.components
+package com.example.linpack.presentation.screens.linpack.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

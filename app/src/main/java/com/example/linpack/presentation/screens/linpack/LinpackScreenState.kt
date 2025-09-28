@@ -1,4 +1,4 @@
-package com.example.linpack.presentation.screens.template
+package com.example.linpack.presentation.screens.linpack
 
 import com.example.linpack.data.Constants
 

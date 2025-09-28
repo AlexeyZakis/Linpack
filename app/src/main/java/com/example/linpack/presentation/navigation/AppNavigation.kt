@@ -8,8 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.linpack.presentation.screens.template.LinpackScreen
-import com.example.linpack.presentation.screens.template.LinpackScreenViewModel
+import com.example.linpack.presentation.screens.linpack.LinpackScreen
+import com.example.linpack.presentation.screens.linpack.LinpackScreenViewModel
 
 @Composable
 fun AppNavigation() {
