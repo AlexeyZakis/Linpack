@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Linpack</string>
+
+    <string name="maxCores">Max Cores</string>
+    <string name="estimatedAvailableMemory">Estimated Available Memory</string>
+    <string name="matrixSize">Matrix size</string>
+    <string name="cores">Cores</string>
+    <string name="progress">Progress</string>
+
+    <string name="runLinpack">Run Linpack</string>
+    <string name="stopCalculation">Stop calculation</string>
+
+    <string name="linpackDuration">Duration</string>
+    <string name="linpackFlops">Flops</string>
+
+    <string name="inProgress">In progress</string>
+    <string name="cancelling">Cancelling</string>
+</resources>

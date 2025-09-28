@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/../.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../androidOld/MafiaHelper" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../123/ToDoApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../AlarmClock" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../BehavioralAuthentication" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../CleanArchitecture" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ClickMeIfYouCan" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Gradienter" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HexAStar" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../InteractiveMap" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Paint" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../PlayerSelector" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../Predicatelogiceditor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../TelegramStatus/team-37/android" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../TemplateApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ThreeInARow" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ToDoApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/15Puzzle" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/LeetCodeTemp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/Tester" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/Tetris" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/arduinoEffects" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c++/myLibraries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../c/Red-Black-Trees" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../cSharp/5_sem/5semesterCSharpLab" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../cSharp/CodeCloneDetection" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../cSharp/tournamentScheduleGeneticCMC/441_2_plotnikov" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/Bulls-and-Cows" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/DES" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/Dice-probability" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/MafiaHelper" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/Poker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/Sudoku-Solver" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/This-is-not-50-50" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../kotlin/myFunctions" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../python/EGE-analyzer" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../python/Vladimir-Parser" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../sites/ExpertsCalculator/ExpertsCalculator" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../sp/DontDivideByZero" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../sp/Roslyn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../sportsProgramming" vcs="Git" />
+  </component>
+</project>
