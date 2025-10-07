@@ -39,18 +39,13 @@ class LinpackManagerImpl : LinpackManager {
         _progress.value = 0
 
         val deferred = CoroutineScope(Dispatchers.Default).async {
-            val A = Array(matrixSize) { DoubleArray(matrixSize) { Random.nextDouble() } }
-            val b = DoubleArray(matrixSize) { Random.nextDouble() }
-            val x = DoubleArray(matrixSize)
+            val A = FloatArray(matrixSize * matrixSize) { Random.nextFloat() }
+            val b = FloatArray(matrixSize) { Random.nextFloat() }
 
             val elapsed = measureTimeMillis {
-                gaussianElimination(
-                    A = A,
-                    b = b,
-                    x = x,
-                    cores = cores,
-                )
+                GaussNative.solveGaussian(matrixSize, A.copyOf(), b.copyOf())
             }
+
             val estimatedNumOfOperations = matrixSize.matrixSizeToEstimatedNumOfOperations()
             val durationSec = elapsed.msToSec()
             val flops = estimatedNumOfOperations / durationSec
