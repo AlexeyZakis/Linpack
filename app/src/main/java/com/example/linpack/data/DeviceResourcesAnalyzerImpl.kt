@@ -8,14 +8,14 @@ import java.io.File
 class DeviceResourcesAnalyzerImpl : DeviceResourcesAnalyzer {
     override fun getDeviceResources(): DeviceResources {
         val cores = Runtime.getRuntime().availableProcessors()
-        val maxMemory = Runtime.getRuntime().maxMemory().byteToMB()
-        val usedMemory = (Runtime.getRuntime().totalMemory()
+        val maxMemoryMB = Runtime.getRuntime().maxMemory().byteToMB()
+        val usedMemoryMB = (Runtime.getRuntime().totalMemory()
                 - Runtime.getRuntime().freeMemory()).byteToMB()
 
         val deviceResources = DeviceResources(
             cores = cores,
-            maxMemory = maxMemory,
-            usedMemory = usedMemory,
+            maxMemoryMB = maxMemoryMB,
+            usedMemoryMB = usedMemoryMB,
         )
         return deviceResources
     }
@@ -44,14 +44,9 @@ class DeviceResourcesAnalyzerImpl : DeviceResourcesAnalyzer {
         return result
     }
 
-    override fun countAvailableMemory(matrixSize: Int): Double {
-        val deviceResources = getDeviceResources()
-        val maxMemory = deviceResources.maxMemory
-        val usedMemory = deviceResources.usedMemory
-        val requiredMemory = matrixSize.matrixSizeToEstimatedRequiredByte().byteToMB()
-
-        val availableMemory = maxMemory - usedMemory - requiredMemory
-
-        return availableMemory
+    override fun countRequiredMemoryMB(matrixSize: Int): Double {
+        val requiredMemory = matrixSize.matrixSizeToEstimatedRequiredByte().byteToMB() +
+                Constants.ESTIMATED_MIN_REQUIRED_MEMORY
+        return requiredMemory
     }
 }

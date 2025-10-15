@@ -15,6 +15,8 @@ import com.example.linpack.presentation.theme.AppTheme
 fun DeviceResources(
     cores: Int,
     availableMemoryMB: Int,
+    requiredMemoryMB: Int,
+    isPortrait: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -22,12 +24,13 @@ fun DeviceResources(
         modifier = modifier,
     ) {
         TextWithName(
-            name = stringResource(id = R.string.maxCores),
+            name = stringResource(R.string.cores),
             text = "$cores"
         )
         TextWithName(
-            name = stringResource(id = R.string.estimatedAvailableMemory),
-            text = "${availableMemoryMB}MB"
+            name = stringResource(R.string.estimatedUsedMemory),
+            text = "${requiredMemoryMB}/${availableMemoryMB}${stringResource(R.string.MB)}",
+            isColumn = isPortrait,
         )
     }
 }
@@ -38,7 +41,22 @@ private fun DeviceResourcesPreview() {
     AppTheme {
         DeviceResources(
             cores = 8,
-            availableMemoryMB = 245,
+            availableMemoryMB = 512,
+            requiredMemoryMB = 214,
+            isPortrait = false,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DeviceResourcesPortraitPreview() {
+    AppTheme {
+        DeviceResources(
+            cores = 8,
+            availableMemoryMB = 512,
+            requiredMemoryMB = 214,
+            isPortrait = true,
         )
     }
 }

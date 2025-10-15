@@ -1,7 +1,8 @@
 package com.example.linpack.presentation.di.usecases.managers
 
 import com.example.linpack.domain.DeviceResourcesAnalyzer
-import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.CountAvailableMemoryUseCase
+import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.CountRequiredMemoryMBUseCase
+import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetAvailableMemoryMBUseCase
 import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetDeviceResourcesUseCase
 import dagger.Module
 import dagger.Provides
@@ -16,6 +17,10 @@ class DeviceResourcesAnalyzerModule {
         GetDeviceResourcesUseCase(deviceResourcesAnalyzer = deviceResourcesAnalyzer)
 
     @Provides
-    fun provideCountAvailableMemoryUseCase(deviceResourcesAnalyzer: DeviceResourcesAnalyzer) =
-        CountAvailableMemoryUseCase(deviceResourcesAnalyzer = deviceResourcesAnalyzer)
+    fun provideCountRequiredMemoryMBUseCase(deviceResourcesAnalyzer: DeviceResourcesAnalyzer) =
+        CountRequiredMemoryMBUseCase(deviceResourcesAnalyzer = deviceResourcesAnalyzer)
+
+    @Provides
+    fun provideGetAvailableMemoryMBUseCase(deviceResourcesAnalyzer: DeviceResourcesAnalyzer) =
+        GetAvailableMemoryMBUseCase(deviceResourcesAnalyzer = deviceResourcesAnalyzer)
 }

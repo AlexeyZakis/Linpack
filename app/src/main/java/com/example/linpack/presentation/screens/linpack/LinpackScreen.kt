@@ -1,25 +1,30 @@
 package com.example.linpack.presentation.screens.linpack
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.linpack.presentation.screens.linpack.components.CancelCalculationBtn
-import com.example.linpack.presentation.screens.linpack.components.Cores
+import com.example.linpack.domain.models.GaussImpl
+import com.example.linpack.domain.models.LinpackResult
+import com.example.linpack.presentation.screens.linpack.components.CopyResultBtn
 import com.example.linpack.presentation.screens.linpack.components.DeviceResources
 import com.example.linpack.presentation.screens.linpack.components.MatrixSize
-import com.example.linpack.presentation.screens.linpack.components.ProgressState
+import com.example.linpack.presentation.screens.linpack.components.Progress
 import com.example.linpack.presentation.screens.linpack.components.Results
 import com.example.linpack.presentation.screens.linpack.components.RunLinpackBtn
+import com.example.linpack.presentation.screens.linpack.components.SelectGauss
 import com.example.linpack.presentation.theme.AppTheme
 import com.example.linpack.presentation.theme.themeColors
 
@@ -29,6 +34,9 @@ fun LinpackScreen(
     screenAction: (LinpackScreenAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val configuration = LocalConfiguration.current
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -37,18 +45,13 @@ fun LinpackScreen(
             .verticalScroll(rememberScrollState())
             .background(themeColors.backPrimary)
             .padding(32.dp)
-            .padding(top = 100.dp)
+            .padding(top = 60.dp)
     ) {
         DeviceResources(
-            cores = screenState.maxCores,
-            availableMemoryMB = screenState.availableMemoryMB,
-        )
-        Cores(
             cores = screenState.cores,
-            maxCores = screenState.maxCores,
-            onCoresChanged = {
-                screenAction(LinpackScreenAction.OnCoresChanged(it.toInt()))
-            }
+            availableMemoryMB = screenState.availableMemoryMB,
+            requiredMemoryMB = screenState.requiredMemoryMB,
+            isPortrait = isPortrait,
         )
         MatrixSize(
             matrixSize = screenState.matrixSize,
@@ -56,35 +59,34 @@ fun LinpackScreen(
                 screenAction(LinpackScreenAction.OnMatrixSizeChanged(it.toInt()))
             }
         )
+        SelectGauss(
+            selectedGauss = screenState.gaussImpl,
+            onSelect = {
+                screenAction(LinpackScreenAction.OnGaussImplChanged(it))
+            }
+        )
+        HorizontalDivider()
         if (screenState.inProgress) {
-            CancelCalculationBtn(
-                enabled = !screenState.isCancelling,
-                onClick = { screenAction(LinpackScreenAction.OnCancelClick) },
+            Progress(
+                cores = screenState.cores,
+                matrixSize = screenState.matrixSizeInProgress,
+                gaussImpl = screenState.gaussImplInProgress,
+                isPortrait = isPortrait,
             )
         } else {
             RunLinpackBtn(
-                enabled = !screenState.isCancelling,
+                enable = screenState.canRunLinpack,
                 onClick = { screenAction(LinpackScreenAction.OnRunClick) },
             )
         }
-        when {
-            screenState.inProgress -> {
-                ProgressState(
-                    cores = screenState.coresInProgress,
-                    matrixSize = screenState.matrixSizeInProgress,
-                    isCancelling = screenState.isCancelling,
-                    progressPercentage = screenState.progress,
-                )
-            }
-
-            !screenState.inProgress && screenState.mFlops != 0.0 -> {
-                Results(
-                    mFlops = screenState.mFlops,
-                    durationSec = screenState.durationSec,
-                    cores = screenState.coresInProgress,
-                    matrixSize = screenState.matrixSizeInProgress,
-                )
-            }
+        if (!screenState.inProgress && screenState.linpackDone) {
+            Results(
+                linpackResult = screenState.linpackResult,
+                isPortrait = isPortrait,
+            )
+            CopyResultBtn(
+                linpackResult = screenState.linpackResult,
+            )
         }
     }
 }
@@ -95,17 +97,156 @@ private fun TemplateScreenPreview() {
     AppTheme {
         LinpackScreen(
             screenState = LinpackScreenState(
-                inProgress = true,
-                isCancelling = false,
+                inProgress = false,
+                linpackDone = false,
                 cores = 4,
                 availableMemoryMB = 300,
                 matrixSize = 1000,
-                durationSec = 4.235,
-                mFlops = 9.46,
-                coresInProgress = 4,
                 matrixSizeInProgress = 800,
-                maxCores = 8,
-                progress = 67,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
+            ),
+            screenAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TemplateScreenInProgressPreview() {
+    AppTheme {
+        LinpackScreen(
+            screenState = LinpackScreenState(
+                inProgress = true,
+                linpackDone = false,
+                cores = 4,
+                availableMemoryMB = 300,
+                matrixSize = 1000,
+                matrixSizeInProgress = 800,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
+            ),
+            screenAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TemplateScreenResultPreview() {
+    AppTheme {
+        LinpackScreen(
+            screenState = LinpackScreenState(
+                inProgress = false,
+                linpackDone = true,
+                cores = 4,
+                availableMemoryMB = 300,
+                matrixSize = 1000,
+                matrixSizeInProgress = 800,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
+            ),
+            screenAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TemplateScreenPortraitPreview() {
+    AppTheme {
+        LinpackScreen(
+            screenState = LinpackScreenState(
+                inProgress = false,
+                linpackDone = false,
+                cores = 4,
+                availableMemoryMB = 300,
+                matrixSize = 1000,
+                matrixSizeInProgress = 800,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
+            ),
+            screenAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TemplateScreenInProgressPortraitPreview() {
+    AppTheme {
+        LinpackScreen(
+            screenState = LinpackScreenState(
+                inProgress = true,
+                linpackDone = false,
+                cores = 4,
+                availableMemoryMB = 300,
+                matrixSize = 1000,
+                matrixSizeInProgress = 800,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
+            ),
+            screenAction = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TemplateScreenResultPortraitPreview() {
+    AppTheme {
+        LinpackScreen(
+            screenState = LinpackScreenState(
+                inProgress = false,
+                linpackDone = true,
+                cores = 4,
+                availableMemoryMB = 300,
+                matrixSize = 1000,
+                matrixSizeInProgress = 800,
+                gaussImpl = GaussImpl.DEFAULT,
+                gaussImplInProgress = GaussImpl.DEFAULT,
+                linpackResult = LinpackResult(
+                    cores = 4,
+                    matrixSize = 1000,
+                    durationSec = 4.214,
+                    mFlops = 6214.631,
+                    gaussImpl = GaussImpl.DEFAULT,
+                )
             ),
             screenAction = {},
         )

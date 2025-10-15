@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Linpack</string>
+    <string name="estimatedUsedMemory">Примерно использовано памяти</string>
+    <string name="matrixSize">Размер матрицы</string>
+    <string name="cores">Ядра</string>
+    <string name="runLinpack">Запустить Linpack</string>
+    <string name="copyResults">Скопировать результат</string>
+    <string name="linpackDuration">Продолжительность</string>
+    <string name="seconds">с</string>
+    <string name="inProgress">В процессе</string>
+    <string name="gaussImplementation">Реализация метода Гаусса</string>
+</resources>

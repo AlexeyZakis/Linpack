@@ -50,11 +50,21 @@ fun ValueSlider(
             colorName = valueName,
             maxValue = maxValue.toInt() * step,
             color = valueNameColor,
-            value = normalizedValue.toInt() * step,
+            value = (normalizedValue.toInt() * step).coerceIn(
+                minimumValue = minValue,
+                maximumValue = maxValue,
+            ),
         )
         Slider(
             value = normalizedValue,
-            onValueChange = { onValueChange((it.toInt().toFloat() * step)) },
+            onValueChange = {
+                onValueChange(
+                    (it.toInt().toFloat() * step).coerceIn(
+                        minimumValue = minValue,
+                        maximumValue = maxValue,
+                    )
+                )
+            },
             valueRange = newValueMin..newValueMax,
             modifier = Modifier.sizeIn(maxWidth = maxSliderWidth),
             colors = SliderDefaults.colors(

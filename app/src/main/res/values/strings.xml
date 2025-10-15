@@ -1,18 +1,24 @@
 <resources>
     <string name="app_name">Linpack</string>
 
-    <string name="maxCores">Max Cores</string>
-    <string name="estimatedAvailableMemory">Estimated Available Memory</string>
+    <string name="estimatedUsedMemory">Estimated Used Memory</string>
     <string name="matrixSize">Matrix size</string>
     <string name="cores">Cores</string>
-    <string name="progress">Progress</string>
 
     <string name="runLinpack">Run Linpack</string>
-    <string name="stopCalculation">Stop calculation</string>
+    <string name="copyResults">Copy results</string>
 
     <string name="linpackDuration">Duration</string>
-    <string name="linpackFlops">Flops</string>
+    <string name="linpackFlops" translatable="false">Flops</string>
+
+    <string name="mFlops" translatable="false">MFlops</string>
+    <string name="seconds">s</string>
+    <string name="MB" translatable="false">MB</string>
 
     <string name="inProgress">In progress</string>
-    <string name="cancelling">Cancelling</string>
+
+    <string name="gaussImplementation">Gauss method implementation</string>
+
+    <string name="kotlinCoroutines" translatable="false">Kotlin (Coroutines)</string>
+    <string name="cppOpenMP" translatable="false">C++ (OpenMP)</string>
 </resources>

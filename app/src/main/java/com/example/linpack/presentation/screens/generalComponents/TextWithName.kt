@@ -1,6 +1,7 @@
 package com.example.linpack.presentation.screens.generalComponents
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,17 +14,34 @@ fun TextWithName(
     name: String,
     text: String,
     modifier: Modifier = Modifier,
+    isColumn: Boolean = false,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = modifier,
-    ) {
-        BoldPrimaryText(
-            text = "$name: ",
-        )
-        PrimaryText(
-            text = text,
-        )
+    val arrangement = 2.dp
+    val label = "$name: "
+    if (isColumn) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(arrangement),
+            modifier = modifier,
+        ) {
+            BoldPrimaryText(
+                text = label,
+            )
+            PrimaryText(
+                text = text,
+            )
+        }
+    } else {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(arrangement),
+            modifier = modifier,
+        ) {
+            BoldPrimaryText(
+                text = label,
+            )
+            PrimaryText(
+                text = text,
+            )
+        }
     }
 }
 
@@ -34,6 +52,18 @@ private fun TextWithNamePreview() {
         TextWithName(
             name = "Name",
             text = "text",
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun TextWithNameColumnPreview() {
+    AppTheme {
+        TextWithName(
+            name = "Name",
+            text = "text",
+            isColumn = true,
         )
     }
 }

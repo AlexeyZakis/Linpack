@@ -2,11 +2,11 @@ package com.example.linpack.presentation.screens.linpack
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.CountAvailableMemoryUseCase
+import com.example.linpack.domain.models.GaussImpl
+import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.CountRequiredMemoryMBUseCase
+import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetAvailableMemoryMBUseCase
 import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetDeviceResourcesUseCase
-import com.example.linpack.domain.usecase.linpackManager.CancelCalculationUseCase
-import com.example.linpack.domain.usecase.linpackManager.GetDeviceMFlopsUseCase
-import com.example.linpack.domain.usecase.linpackManager.GetProgressUseCase
+import com.example.linpack.domain.usecase.linpackManager.CheckDevicePerformanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,39 +20,34 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LinpackScreenViewModel @Inject constructor(
-    private val getDeviceMFlopsUseCase: GetDeviceMFlopsUseCase,
-    private val cancelCalculationUseCase: CancelCalculationUseCase,
+    private val checkDevicePerformanceUseCase: CheckDevicePerformanceUseCase,
     getDeviceResourcesUseCase: GetDeviceResourcesUseCase,
-    countAvailableMemoryUseCase: CountAvailableMemoryUseCase,
-    getProgressUseCase: GetProgressUseCase,
+    countRequiredMemoryMBUseCase: CountRequiredMemoryMBUseCase,
+    getAvailableMemoryMBUseCase: GetAvailableMemoryMBUseCase,
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(LinpackScreenState())
     val screenState = _screenState.asStateFlow()
 
     val deviceResources = getDeviceResourcesUseCase()
-    val linpackProgress = getProgressUseCase()
 
     init {
         _screenState.update { screenState ->
             screenState.copy(
                 cores = deviceResources.cores,
-                maxCores = deviceResources.cores,
+                availableMemoryMB = getAvailableMemoryMBUseCase().toInt()
             )
         }
-        linpackProgress.onEach { progress ->
-            _screenState.update { screenState ->
-                screenState.copy(
-                    progress = progress,
-                )
-            }
-        }.launchIn(viewModelScope)
-
         _screenState.onEach { screenState ->
+            if (screenState.inProgress) return@onEach
             val matrixSize = screenState.matrixSize
-            val availableMemory = countAvailableMemoryUseCase(matrixSize = matrixSize).toInt()
+            val requiredMemoryMB = countRequiredMemoryMBUseCase(
+                matrixSize = matrixSize
+            ).toInt()
+            val canRunLinpack = screenState.availableMemoryMB >= screenState.requiredMemoryMB
             _screenState.update { screenState ->
                 screenState.copy(
-                    availableMemoryMB = availableMemory,
+                    requiredMemoryMB = requiredMemoryMB,
+                    canRunLinpack = canRunLinpack,
                 )
             }
         }.launchIn(viewModelScope)
@@ -62,8 +57,8 @@ class LinpackScreenViewModel @Inject constructor(
         when (action) {
             is LinpackScreenAction.OnMatrixSizeChanged -> onMatrixSizeChanged(action.matrixSize)
             is LinpackScreenAction.OnCoresChanged -> onCoresChanged(action.cores)
+            is LinpackScreenAction.OnGaussImplChanged -> onGaussImplChanged(action.gaussImpl)
             is LinpackScreenAction.OnRunClick -> onRunClick()
-            is LinpackScreenAction.OnCancelClick -> onCancelClick()
         }
     }
 
@@ -83,46 +78,37 @@ class LinpackScreenViewModel @Inject constructor(
         }
     }
 
+    private fun onGaussImplChanged(gaussImpl: GaussImpl) {
+        _screenState.update { screenState ->
+            screenState.copy(
+                gaussImpl = gaussImpl,
+            )
+        }
+    }
+
     private fun onRunClick() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _screenState.update { screenState ->
                     screenState.copy(
                         inProgress = true,
-                        coresInProgress = screenState.cores,
                         matrixSizeInProgress = screenState.matrixSize,
+                        gaussImplInProgress = screenState.gaussImpl,
                     )
                 }
                 val screenState = screenState.value
-                val matrixSize = screenState.matrixSize
-                val cores = screenState.cores
-                val linpackResult = getDeviceMFlopsUseCase(
-                    matrixSize = matrixSize,
-                    cores = cores,
+                val linpackResult = checkDevicePerformanceUseCase(
+                    matrixSize = screenState.matrixSize,
+                    cores = screenState.cores,
+                    gaussImpl = screenState.gaussImpl,
                 )
-                val durationSec = linpackResult.durationSec
-                val mFlops = linpackResult.mFlops
                 _screenState.update { screenState ->
                     screenState.copy(
-                        durationSec = durationSec,
-                        mFlops = mFlops,
+                        linpackResult = linpackResult,
                         inProgress = false,
-                        isCancelling = false,
+                        linpackDone = true,
                     )
                 }
-            }
-        }
-    }
-
-    private fun onCancelClick() {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _screenState.update { screenState ->
-                    screenState.copy(
-                        isCancelling = true,
-                    )
-                }
-                cancelCalculationUseCase()
             }
         }
     }

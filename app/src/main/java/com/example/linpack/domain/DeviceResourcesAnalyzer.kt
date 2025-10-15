@@ -7,5 +7,5 @@ interface DeviceResourcesAnalyzer {
     fun getDeviceResources(): DeviceResources
     fun getCpuFrequencies(): Map<Int, CpuFrequency>
 
-    fun countAvailableMemory(matrixSize: Int): Double
+    fun countRequiredMemoryMB(matrixSize: Int): Double
 }

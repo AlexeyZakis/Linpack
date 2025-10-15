@@ -1,6 +1,7 @@
 package com.example.linpack.data
 
 import com.example.linpack.domain.LinpackManager
+import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.domain.models.LinpackResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -10,8 +11,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
@@ -21,29 +20,34 @@ import kotlin.system.measureTimeMillis
 class LinpackManagerImpl : LinpackManager {
     private var job: Deferred<LinpackResult>? = null
 
-    private val _progress = MutableStateFlow(0)
-    override val progress = _progress.asStateFlow()
-
-    override suspend fun cancelCalculation() {
-        job?.cancelAndJoin()
-        job = null
-        _progress.value = 0
-    }
-
-    override suspend fun getDeviceMFlops(
+    override suspend fun checkDevicePerformance(
         matrixSize: Int,
         cores: Int,
+        gaussImpl: GaussImpl,
     ): LinpackResult {
         job?.takeIf { it.isActive }?.cancelAndJoin()
 
-        _progress.value = 0
-
         val deferred = CoroutineScope(Dispatchers.Default).async {
-            val A = FloatArray(matrixSize * matrixSize) { Random.nextFloat() }
             val b = FloatArray(matrixSize) { Random.nextFloat() }
 
             val elapsed = measureTimeMillis {
-                GaussNative.solveGaussian(matrixSize, A.copyOf(), b.copyOf())
+                when (gaussImpl) {
+                    GaussImpl.Cpp -> {
+                        val a = FloatArray(matrixSize * matrixSize) { Random.nextFloat() }
+                        GaussNative.solveGaussian(matrixSize, a.copyOf(), b.copyOf())
+                    }
+
+                    GaussImpl.Kotlin -> {
+                        val a = Array(matrixSize) { FloatArray(matrixSize) { Random.nextFloat() } }
+                        val x = FloatArray(matrixSize)
+                        gaussianElimination(
+                            A = a,
+                            b = b,
+                            x = x,
+                            cores = cores,
+                        )
+                    }
+                }
             }
 
             val estimatedNumOfOperations = matrixSize.matrixSizeToEstimatedNumOfOperations()
@@ -51,11 +55,12 @@ class LinpackManagerImpl : LinpackManager {
             val flops = estimatedNumOfOperations / durationSec
             val mFlops = flops.flopsToMFlops()
 
-            _progress.value = 100
-
             LinpackResult(
                 mFlops = mFlops,
                 durationSec = durationSec,
+                cores = cores,
+                matrixSize = matrixSize,
+                gaussImpl = gaussImpl,
             )
         }
 
@@ -64,24 +69,17 @@ class LinpackManagerImpl : LinpackManager {
         return try {
             deferred.await()
         } catch (e: CancellationException) {
-            LinpackResult(
-                mFlops = 0.0,
-                durationSec = 0.0,
-                cancelled = true,
-            )
+            LinpackResult()
         }
     }
 
     private suspend fun gaussianElimination(
-        A: Array<DoubleArray>,
-        b: DoubleArray,
-        x: DoubleArray,
+        A: Array<FloatArray>,
+        b: FloatArray,
+        x: FloatArray,
         cores: Int,
     ) {
         val n = A.size
-
-        val totalOps = (2.0 / 3.0 * n * n * n).toLong()
-        var doneOps = 0L
 
         for (k in 0 until n) {
             coroutineContext.ensureActive()
@@ -111,12 +109,6 @@ class LinpackManagerImpl : LinpackManager {
                     }
                 }.awaitAll()
             }
-
-            val opsThisStep = 2L * (n - k - 1) * (n - k)
-            doneOps += opsThisStep
-
-            val progressPercent = ((doneOps.toDouble() / totalOps) * 100).toInt()
-            _progress.value = min(progressPercent, 100)
         }
 
         for (i in n - 1 downTo 0) {
@@ -127,6 +119,5 @@ class LinpackManagerImpl : LinpackManager {
                 x[i] -= A[i][j] * x[j]
             }
         }
-        _progress.value = 100
     }
 }

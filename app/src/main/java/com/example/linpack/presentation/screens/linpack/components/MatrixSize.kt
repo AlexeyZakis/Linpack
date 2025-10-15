@@ -18,7 +18,7 @@ fun MatrixSize(
     modifier: Modifier = Modifier,
 ) {
     ValueSlider(
-        valueName = stringResource(id = R.string.matrixSize),
+        valueName = stringResource(R.string.matrixSize),
         value = matrixSize.toFloat(),
         minValue = Constants.MATRIX_SIZE_MIN.toFloat(),
         maxValue = Constants.MATRIX_SIZE_MAX.toFloat(),
