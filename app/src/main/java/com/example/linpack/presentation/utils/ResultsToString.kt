@@ -13,10 +13,11 @@ fun LinpackResult.toResultString(): String {
         unitOfMeasurementResId = R.string.mFlops,
         value = roundedMFlops,
     )
+    val roundedDurationSec = "%.2f".format(durationSec)
     val duration = getStringWithLabel(
         labelResId = R.string.linpackDuration,
         unitOfMeasurementResId = R.string.seconds,
-        value = "$durationSec",
+        value = roundedDurationSec,
     )
     val cores = getStringWithLabel(
         labelResId = R.string.cores,
