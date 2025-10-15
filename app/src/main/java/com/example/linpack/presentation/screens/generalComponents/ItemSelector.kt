@@ -47,7 +47,6 @@ fun <T> ItemSelector(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .fillMaxWidth()
     ) {
         Text(
             text = "$selectedPrefix${stringResource(valueToStringResId(selected))}",
