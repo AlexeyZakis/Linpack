@@ -12,6 +12,7 @@ import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.domain.models.LinpackResult
 import com.example.linpack.presentation.screens.generalComponents.TextWithName
 import com.example.linpack.presentation.theme.AppTheme
+import com.example.linpack.presentation.utils.mFlopsToGFlops
 import com.example.linpack.presentation.utils.toResId
 
 @Composable
@@ -20,8 +21,8 @@ fun Results(
     isPortrait: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val roundedMFlops = "%.2f".format(linpackResult.mFlops)
     val roundedDurationSec = "%.2f".format(linpackResult.durationSec)
+    val flops = mFlopsToGFlops(linpackResult.mFlops)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -29,7 +30,7 @@ fun Results(
     ) {
         TextWithName(
             name = stringResource(R.string.linpackFlops),
-            text = "${roundedMFlops}${stringResource(R.string.mFlops)}"
+            text = flops
         )
         TextWithName(
             name = stringResource(R.string.linpackDuration),

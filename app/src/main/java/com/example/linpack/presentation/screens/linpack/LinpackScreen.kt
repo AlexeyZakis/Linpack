@@ -1,6 +1,7 @@
 package com.example.linpack.presentation.screens.linpack
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,9 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -20,6 +24,8 @@ import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.domain.models.LinpackResult
 import com.example.linpack.presentation.screens.linpack.components.CopyResultBtn
 import com.example.linpack.presentation.screens.linpack.components.DeviceResources
+import com.example.linpack.presentation.screens.linpack.components.InfoDialog
+import com.example.linpack.presentation.screens.linpack.components.LinpackInfoBtn
 import com.example.linpack.presentation.screens.linpack.components.MatrixSize
 import com.example.linpack.presentation.screens.linpack.components.Progress
 import com.example.linpack.presentation.screens.linpack.components.Results
@@ -37,6 +43,12 @@ fun LinpackScreen(
     val configuration = LocalConfiguration.current
     val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = showInfoDialog) {
+        showInfoDialog = false
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -45,9 +57,13 @@ fun LinpackScreen(
             .verticalScroll(rememberScrollState())
             .background(themeColors.backPrimary)
             .padding(32.dp)
-            .padding(top = 60.dp)
+            .padding(top = 16.dp)
     ) {
+        LinpackInfoBtn(
+            onClick = { showInfoDialog = true },
+        )
         DeviceResources(
+            enoughMemory = screenState.enoughMemory,
             cores = screenState.cores,
             availableMemoryMB = screenState.availableMemoryMB,
             requiredMemoryMB = screenState.requiredMemoryMB,
@@ -75,7 +91,7 @@ fun LinpackScreen(
             )
         } else {
             RunLinpackBtn(
-                enable = screenState.canRunLinpack,
+                enable = screenState.enoughMemory,
                 onClick = { screenAction(LinpackScreenAction.OnRunClick) },
             )
         }
@@ -89,6 +105,12 @@ fun LinpackScreen(
             )
         }
     }
+    InfoDialog(
+        showDialog = showInfoDialog,
+        onDismiss = {
+            showInfoDialog = false
+        },
+    )
 }
 
 @Preview

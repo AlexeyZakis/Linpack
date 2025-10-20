@@ -8,4 +8,6 @@ object Constants {
     const val MATRIX_SIZE_MAX: Int = 10000
 
     const val ESTIMATED_MIN_REQUIRED_MEMORY: Int = 64
+
+    const val LINPACK_INFO_MAX_WIDTH: Int = 400
 }

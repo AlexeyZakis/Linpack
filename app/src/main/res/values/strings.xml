@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Linpack</string>
 
-    <string name="estimatedUsedMemory">Estimated Used Memory</string>
+    <string name="estimatedUsedMemory">Memory will be used</string>
     <string name="matrixSize">Matrix size</string>
     <string name="cores">Cores</string>
 
@@ -12,6 +12,7 @@
     <string name="linpackFlops" translatable="false">Flops</string>
 
     <string name="mFlops" translatable="false">MFlops</string>
+    <string name="gFlops" translatable="false">GFlops</string>
     <string name="seconds">s</string>
     <string name="MB" translatable="false">MB</string>
 
@@ -21,4 +22,9 @@
 
     <string name="kotlinCoroutines" translatable="false">Kotlin (Coroutines)</string>
     <string name="cppOpenMP" translatable="false">C++ (OpenMP)</string>
+
+    <string name="linpackInfoBtn">Open info about Linpack launch settings</string>
+
+    <string name="gaussImplementationsInfo">The C++ implementation can utilize system resources at a low level, resulting in computations that are orders of magnitude more efficient than the Koltin implementation.</string>
+    <string name="memoryInfo">The Android virtual machine allocates a certain amount of memory for the application to run. If the matrix size is too large, the calculations will not be able to run because the matrix will not fit in memory.</string>
 </resources>

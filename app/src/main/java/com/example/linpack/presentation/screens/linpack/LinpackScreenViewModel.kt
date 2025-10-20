@@ -43,11 +43,11 @@ class LinpackScreenViewModel @Inject constructor(
             val requiredMemoryMB = countRequiredMemoryMBUseCase(
                 matrixSize = matrixSize
             ).toInt()
-            val canRunLinpack = screenState.availableMemoryMB >= screenState.requiredMemoryMB
+            val enoughMemory = screenState.availableMemoryMB >= screenState.requiredMemoryMB
             _screenState.update { screenState ->
                 screenState.copy(
                     requiredMemoryMB = requiredMemoryMB,
-                    canRunLinpack = canRunLinpack,
+                    enoughMemory = enoughMemory,
                 )
             }
         }.launchIn(viewModelScope)

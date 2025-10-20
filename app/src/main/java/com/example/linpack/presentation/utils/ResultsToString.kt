@@ -7,11 +7,9 @@ import com.example.linpack.domain.models.LinpackResult
 
 @Composable
 fun LinpackResult.toResultString(): String {
-    val roundedMFlops = "%.2f".format(mFlops)
-    val mFlops = getStringWithLabel(
+    val flops = getStringWithLabel(
         labelResId = R.string.linpackFlops,
-        unitOfMeasurementResId = R.string.mFlops,
-        value = roundedMFlops,
+        value = mFlopsToGFlops(mFlops),
     )
     val roundedDurationSec = "%.2f".format(durationSec)
     val duration = getStringWithLabel(
@@ -31,7 +29,7 @@ fun LinpackResult.toResultString(): String {
         labelResId = R.string.gaussImplementation,
         value = stringResource(gaussImpl.toResId()),
     )
-    val result = "$mFlops\n" +
+    val result = "$flops\n" +
             "$duration\n" +
             "$cores\n" +
             "$matrixSize\n" +

@@ -15,5 +15,5 @@ data class LinpackScreenState(
     val gaussImpl: GaussImpl = GaussImpl.DEFAULT,
     val gaussImplInProgress: GaussImpl = GaussImpl.DEFAULT,
     val linpackResult: LinpackResult = LinpackResult(),
-    val canRunLinpack: Boolean = true,
+    val enoughMemory: Boolean = true,
 )

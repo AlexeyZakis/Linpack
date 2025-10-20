@@ -5,15 +5,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.linpack.presentation.theme.AppTheme
+import com.example.linpack.presentation.theme.themeTypography
 
 @Composable
 fun TextWithName(
     name: String,
     text: String,
     modifier: Modifier = Modifier,
+    color: Color = themeTypography.labelPrimary.color,
     isColumn: Boolean = false,
 ) {
     val arrangement = 2.dp
@@ -25,9 +28,11 @@ fun TextWithName(
         ) {
             BoldPrimaryText(
                 text = label,
+                color = color,
             )
             PrimaryText(
                 text = text,
+                color = color,
             )
         }
     } else {
@@ -37,9 +42,11 @@ fun TextWithName(
         ) {
             BoldPrimaryText(
                 text = label,
+                color = color,
             )
             PrimaryText(
                 text = text,
+                color = color,
             )
         }
     }

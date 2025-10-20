@@ -1,7 +1,11 @@
 package com.example.linpack.presentation.screens.generalComponents
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -9,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -19,6 +24,7 @@ import com.example.linpack.presentation.theme.AppTheme
 import kotlin.math.max
 import kotlin.math.min
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ValueSlider(
     valueName: String,
@@ -71,7 +77,26 @@ fun ValueSlider(
                 thumbColor = sliderColor,
                 activeTrackColor = sliderColor,
                 inactiveTrackColor = sliderBackgroundColor,
-            )
+            ),
+            thumb = {
+                Box(
+                    Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(16.dp)
+                        .background(sliderColor.copy(alpha = 1f))
+                )
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    thumbTrackGapSize = 0.dp,
+                    colors = SliderDefaults.colors(
+                        thumbColor = sliderColor,
+                        activeTrackColor = sliderColor,
+                        inactiveTrackColor = sliderBackgroundColor,
+                    )
+                )
+            },
         )
     }
 }
