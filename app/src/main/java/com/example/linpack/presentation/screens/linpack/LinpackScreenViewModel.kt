@@ -38,10 +38,8 @@ class LinpackScreenViewModel @Inject constructor(
             )
         }
         _screenState.onEach { screenState ->
-            if (screenState.inProgress) return@onEach
-            val matrixSize = screenState.matrixSize
             val requiredMemoryMB = countRequiredMemoryMBUseCase(
-                matrixSize = matrixSize
+                matrixSize = screenState.matrixSize
             ).toInt()
             val enoughMemory = screenState.availableMemoryMB >= screenState.requiredMemoryMB
             _screenState.update { screenState ->

@@ -15,8 +15,8 @@ android {
         applicationId = "com.example.linpack"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "v1.2.0"
+        versionCode = 4
+        versionName = "v1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
