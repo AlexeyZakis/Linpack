@@ -1,7 +1,7 @@
 package com.example.linpack.data
 
 object Constants {
-    const val FULLSCREEN: Boolean = false
+    const val FULLSCREEN: Boolean = true
 
     const val SEED: Int = 42
 
