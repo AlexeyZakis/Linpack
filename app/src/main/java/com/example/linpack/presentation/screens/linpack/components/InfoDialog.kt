@@ -49,14 +49,10 @@ fun InfoDialog(
                 .padding(16.dp)
         ) {
             PrimaryText(
-                text = stringResource(R.string.memoryInfo),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(themeColors.backSecondary)
-                    .padding(8.dp)
-            )
-            PrimaryText(
-                text = stringResource(R.string.gaussImplementationsInfo),
+                text = stringResource(
+                    R.string.theoreticalMaxFlopsInfo,
+                    Constants.HEURISTICALLY_FLOPS_PER_CYCLE,
+                ),
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .background(themeColors.backSecondary)

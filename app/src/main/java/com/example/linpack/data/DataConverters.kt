@@ -10,8 +10,8 @@ fun Int.kHzToMHz(): Int {
     return mb
 }
 
-fun Long.msToSec(): Double {
-    val ms = this / 1000.0
+fun Long.nsToSec(): Double {
+    val ms = this / 1_000_000_000.0
     return ms
 }
 
@@ -23,9 +23,4 @@ fun Double.flopsToMFlops(): Double {
 fun Int.matrixSizeToEstimatedNumOfOperations(): Double {
     val numOfOperations = (2.0 / 3.0 * this * this * this)
     return numOfOperations
-}
-
-fun Int.matrixSizeToEstimatedRequiredByte(): Long {
-    val requiredByte = 8L * this * this + 16 * this
-    return requiredByte
 }

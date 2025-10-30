@@ -2,9 +2,9 @@ package com.example.linpack.domain.usecase.deviceResourcesAnalyzer
 
 import com.example.linpack.domain.DeviceResourcesAnalyzer
 
-class GetAvailableMemoryMBUseCase(
+class GetEstimatedCpuMFlopsUseCase(
     private val deviceResourcesAnalyzer: DeviceResourcesAnalyzer,
 ) {
     operator fun invoke() =
-        deviceResourcesAnalyzer.getDeviceResources().maxMemoryMB
+        deviceResourcesAnalyzer.getEstimateCpuMFlops()
 }

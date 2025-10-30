@@ -5,5 +5,6 @@ object GaussNative {
         System.loadLibrary("linpack_native")
     }
 
-    external fun solveGaussian(n: Int, a: FloatArray, b: FloatArray): FloatArray
+    // Return required time in ns
+    external fun measureGaussian(matrixSize: Int, seed: Int): Long
 }

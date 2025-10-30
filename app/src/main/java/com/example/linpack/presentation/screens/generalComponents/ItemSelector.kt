@@ -25,11 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.presentation.theme.AppTheme
 import com.example.linpack.presentation.theme.themeColors
 import com.example.linpack.presentation.theme.themeTypography
-import com.example.linpack.presentation.utils.toResId
 
 @Composable
 fun <T> ItemSelector(
@@ -99,30 +97,32 @@ fun <T> ItemSelector(
     }
 }
 
+private enum class Temp { A, B }
+
 @Preview(showBackground = true)
 @Composable
 private fun ItemSelectorPreview() {
     AppTheme {
-        var selected by remember { mutableStateOf(GaussImpl.DEFAULT) }
+        var selected by remember { mutableStateOf(Temp.A) }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
         ) {
             ItemSelector(
-                values = GaussImpl.entries,
-                valueToStringResId = { it.toResId() },
+                values = Temp.entries,
+                valueToStringResId = { 1 },
                 onSelect = { selected = it },
                 selected = selected,
                 fontSize = 24.sp,
                 selectedPrefix = "Language: ",
                 valueColors = mapOf(
-                    GaussImpl.Cpp to Color.Red,
-                    GaussImpl.Kotlin to Color.Blue,
+                    Temp.A to Color.Red,
+                    Temp.B to Color.Blue,
                 ),
                 valuePrefix = mapOf(
-                    GaussImpl.Cpp to "The ",
-                    GaussImpl.Kotlin to "Great ",
+                    Temp.A to "The ",
+                    Temp.B to "Great ",
                 ),
             )
         }

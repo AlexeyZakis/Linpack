@@ -5,6 +5,5 @@ import com.example.linpack.domain.DeviceResourcesAnalyzer
 class GetDeviceResourcesUseCase(
     private val deviceResourcesAnalyzer: DeviceResourcesAnalyzer,
 ) {
-    operator fun invoke() =
-        deviceResourcesAnalyzer.getDeviceResources()
+    operator fun invoke() = deviceResourcesAnalyzer.getDeviceResources()
 }

@@ -17,21 +17,15 @@ import com.example.linpack.presentation.theme.themeColors
 
 @Composable
 fun RunLinpackBtn(
-    enable: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val color = if (enable) {
-        themeColors.green
-    } else {
-        themeColors.red
-    }
     ButtonText(
         text = stringResource(R.string.runLinpack),
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(color)
-            .clickable(enable) { onClick() }
+            .background(themeColors.green)
+            .clickable { onClick() }
             .padding(8.dp)
     )
 }
@@ -41,18 +35,6 @@ fun RunLinpackBtn(
 private fun RunLinpackBtnPreview() {
     AppTheme {
         RunLinpackBtn(
-            enable = true,
-            onClick = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun RunLinpackBtnDisablePreview() {
-    AppTheme {
-        RunLinpackBtn(
-            enable = false,
             onClick = {},
         )
     }

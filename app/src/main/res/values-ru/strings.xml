@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Linpack</string>
-    <string name="estimatedUsedMemory">Будет использовано памяти</string>
     <string name="matrixSize">Размер матрицы</string>
+    <string name="numOfRuns">Число запусков</string>
+    <string name="run">Запуск</string>
     <string name="cores">Ядра</string>
+    <string name="estimatedCpuFlops">Теоретический максимум флопс</string>
     <string name="runLinpack">Запустить Linpack</string>
     <string name="copyResults">Скопировать результат</string>
-    <string name="linpackDuration">Продолжительность</string>
+    <string name="avgDuration">Средняя продолжительность</string>
     <string name="seconds">с</string>
     <string name="inProgress">В процессе</string>
-    <string name="gaussImplementation">Реализация метода Гаусса</string>
-    <string name="linpackInfoBtn">Открыть информацию о настройках запуска Linpack</string>
-    <string name="gaussImplementationsInfo">Реализация на С++ может низкоуровнего использовать рессурсы системы, в результате чего вычисления происходят на несколько порядков эффективнее, чем в реализации на Koltin.</string>
-    <string name="memoryInfo">Виртуальная машина андроид выделяет определённое количество памяти для работы приложения. Если размер матрицы будет слишком большой, то вычисления нельзя будет запустить, так как матрица не поместится в память.</string>
+    <string name="infoBtn">Открыть информацию о настройках запуска Linpack</string>
+    <string name="linpackResult">Результат Linpack</string>
+    <string name="estimatedCpuFlopsError">Не удалось рассчитать</string>
+    <string name="errorMessage">Произошла ошибка в процессе вычисления</string>
+    <string name="theoreticalMaxFlopsInfo">В теоретической оценки производительности используется предположение, что за 1 такт выполняется %d операций</string>
+    <string name="avgFlops">"Средние флопсы "</string>
 </resources>

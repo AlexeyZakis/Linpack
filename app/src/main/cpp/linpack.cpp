@@ -2,124 +2,163 @@
 #include <vector>
 #include <cstdint>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <algorithm>
-
-#ifdef _OPENMP
+#include <ctime>
 #include <omp.h>
+#include <arm_neon.h>
+#include <thread>
+
+constexpr int BLOCK_SIZE = 64;
+constexpr float EPS = 1e-7f;
+
+static inline float frand() {
+    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+}
+
+static inline float horizontal_sum_f32(float32x4_t v) {
+#if defined(__aarch64__)
+    return vaddvq_f32(v);
 #else
-#warning "OpenMP not enabled!"
+    float32x2_t pairSum = vadd_f32(vget_low_f32(v), vget_high_f32(v));
+    float32x2_t sum2 = vpadd_f32(pairSum, pairSum);
+    return vget_lane_f32(sum2, 0);
 #endif
-
-extern "C" {
-
-#ifndef BLOCK_SIZE
-#define BLOCK_SIZE 64
-#endif
-
-static constexpr float EPS = 1e-12f;
+}
 
 static inline void blockGemmSub(
-    const float* __restrict__ A,
-    const float* __restrict__ B,
-    float* __restrict__ C,
-    int M,
-    int K,
-    int N,
-    int lda,
-    int ldb,
-    int ldc
+        const float *A,
+        const float *B_T,
+        float *C,
+        int M, int K, int N,
+        int lda, int ldb, int ldc
 ) {
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2) schedule(dynamic)
+#endif
     for (int i = 0; i < M; ++i) {
-        const float* Ai = A + i * lda;
-        float* Ci = C + i * ldc;
-        for (int k = 0; k < K; ++k) {
-            float a_ik = Ai[k];
-            if (fabsf(a_ik) < EPS) continue;
-            for (int j = 0; j < N; ++j) {
-                Ci[j] -= a_ik * B[k * ldb + j];
+        for (int j = 0; j < N; ++j) {
+            float32x4_t acc = vdupq_n_f32(0.f);
+            int k = 0;
+            for (; k + 4 <= K; k += 4) {
+                float32x4_t va = vld1q_f32(A + i * lda + k);
+                float32x4_t vb = vld1q_f32(B_T + j * ldb + k);
+                acc = vmlaq_f32(acc, va, vb);
+            }
+            float sum = horizontal_sum_f32(acc);
+            for (; k < K; ++k)
+                sum += A[i * lda + k] * B_T[j * ldb + k];
+            C[i * ldc + j] -= sum;
+        }
+    }
+}
+
+static inline void panel_factorize(
+        float *A,
+        float *b,
+        int n,
+        int k,
+        int kb,
+        std::vector<int> &pivots
+) {
+    pivots.resize(kb);
+    for (int i = 0; i < kb; ++i) {
+        int pivot = k + i;
+        float maxv = std::fabs(A[(k + i) * n + k + i]);
+        for (int r = k + i + 1; r < n; ++r) {
+            float v = std::fabs(A[r * n + k + i]);
+            if (v > maxv) {
+                maxv = v;
+                pivot = r;
             }
         }
+
+        pivots[i] = pivot;
+
+        if (pivot != k + i) {
+            for (int c = k; c < n; ++c)
+                std::swap(A[(k + i) * n + c], A[pivot * n + c]);
+            std::swap(b[k + i], b[pivot]);
+        }
+
+        float diag = A[(k + i) * n + k + i];
+        if (std::fabs(diag) < EPS) continue;
+
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+        for (int r = k + i + 1; r < n; ++r) {
+            float m = A[r * n + k + i] / diag;
+            A[r * n + k + i] = m;
+            for (int c = k + i + 1; c < k + kb; ++c)
+                A[r * n + c] -= m * A[(k + i) * n + c];
+        }
     }
 }
 
-static inline void swap_rows(float* A, int r1, int r2, int nСols) {
-    if (r1 == r2) return;
-    float* a1 = A + r1 * nСols;
-    float* a2 = A + r2 * nСols;
-    for (int j = 0; j < nСols; ++j) std::swap(a1[j], a2[j]);
-}
-
-static void panel_factorize(
-    float* A,
-    float* b,
-    int n,
-    int panel_start,
-    int bs,
-    std::vector<int>& piv
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_example_linpack_data_GaussNative_measureGaussian(
+        JNIEnv *,
+        jclass,
+        jint jn,
+        jint jseed
 ) {
-    int end = std::min(n, panel_start + bs);
-    piv.resize(end - panel_start);
-    for (int k = panel_start; k < end; ++k) {
-        int piv_row = k;
-        float maxV = fabsf(A[k * n + k]);
-        for (int i = k + 1; i < n; ++i) {
-            float v = fabsf(A[i * n + k]);
-            if (v > maxV) { maxV = v; piv_row = i; }
-        }
-        piv[k - panel_start] = piv_row;
-        if (piv_row != k) {
-            swap_rows(A, k, piv_row, n);
-            std::swap(b[k], b[piv_row]);
-        }
-        float akk = A[k * n + k];
-        if (fabsf(akk) < EPS) continue;
-        float inv_akk = 1.0f / akk;
-        float* Ak = A + k * n;
-        for (int i = k + 1; i < n; ++i) {
-            float* Ai = A + i * n;
-            float factor = Ai[k] * inv_akk;
-            Ai[k] = 0.0f;
-            for (int j = k + 1; j < n; ++j) Ai[j] -= factor * Ak[j];
-            b[i] -= factor * b[k];
-        }
+    const int n = static_cast<int>(jn);
+    if (n <= 0) return -1;
+
+    const auto seed = static_cast<unsigned int>(jseed);
+    srand(seed);
+
+    float *A = nullptr;
+    float *b = nullptr;
+    float *B_T = nullptr;
+
+    if (posix_memalign(reinterpret_cast<void **>(&A), 64, sizeof(float) * n * n) != 0)
+        return -2;
+    if (posix_memalign(reinterpret_cast<void **>(&b), 64, sizeof(float) * n) != 0) {
+        free(A);
+        return -3;
     }
-}
-
-JNIEXPORT jfloatArray JNICALL
-Java_com_example_linpack_data_GaussNative_solveGaussian(
-    JNIEnv* env,
-    jclass,
-    jint jn,
-    jfloatArray jA,
-    jfloatArray jb
-) {
-    int n = (int) jn;
-    if (n <= 0) return nullptr;
-
-    jboolean aCopy, bCopy;
-    jfloat* aData = env->GetFloatArrayElements(jA, &aCopy);
-    jfloat* bData = env->GetFloatArrayElements(jb, &bCopy);
-    if (!aData || !bData) {
-        if (aData) env->ReleaseFloatArrayElements(jA, aData, 0);
-        if (bData) env->ReleaseFloatArrayElements(jb, bData, 0);
-        return nullptr;
+    if (posix_memalign(reinterpret_cast<void **>(&B_T), 64, sizeof(float) * n * n) != 0) {
+        free(A);
+        free(b);
+        return -4;
     }
 
-    std::vector<float> A_local((size_t)n * n);
-    std::vector<float> b_local(n);
-    std::memcpy(A_local.data(), aData, sizeof(float) * n * n);
-    std::memcpy(b_local.data(), bData, sizeof(float) * n);
+    unsigned int numThreads = std::thread::hardware_concurrency();
+#ifdef _OPENMP
+    omp_set_num_threads((int) numThreads);
+#endif
 
-    env->ReleaseFloatArrayElements(jA, aData, JNI_ABORT);
-    env->ReleaseFloatArrayElements(jb, bData, JNI_ABORT);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (int i = 0; i < n * n; ++i)
+        A[i] = frand();
 
-    std::vector<int> pivots;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (int i = 0; i < n; ++i)
+        b[i] = frand();
+
+    struct timespec t0{}, t1{};
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2)
+#endif
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            B_T[j * n + i] = A[i * n + j];
 
     const int B = BLOCK_SIZE;
+    std::vector<int> pivots;
     for (int k = 0; k < n; k += B) {
         int kb = std::min(B, n - k);
-        panel_factorize(A_local.data(), b_local.data(), n, k, kb, pivots);
+        panel_factorize(A, b, n, k, kb, pivots);
 
         int M = n - (k + kb);
         int Nn = n - (k + kb);
@@ -131,9 +170,9 @@ Java_com_example_linpack_data_GaussNative_solveGaussian(
                 for (int jj = 0; jj < Nn; jj += B) {
                     int Mb = std::min(B, M - ii);
                     int Nb = std::min(B, Nn - jj);
-                    float* C = A_local.data() + (k + kb + ii) * n + (k + kb + jj);
-                    const float* Ablock = A_local.data() + (k + kb + ii) * n + k;
-                    const float* Bblock = A_local.data() + k * n + (k + kb + jj);
+                    float *C = A + (size_t) (k + kb + ii) * n + (k + kb + jj);
+                    const float *Ablock = A + (size_t) (k + kb + ii) * n + k;
+                    const float *Bblock = B_T + (k + kb + jj) * n + k;
                     blockGemmSub(Ablock, Bblock, C, Mb, kb, Nb, n, n, n);
                 }
             }
@@ -142,22 +181,30 @@ Java_com_example_linpack_data_GaussNative_solveGaussian(
 
     std::vector<float> y(n);
     for (int i = 0; i < n; ++i) {
-        float s = b_local[i];
-        for (int j = 0; j < i; ++j) s -= A_local[i * n + j] * y[j];
+        float s = b[i];
+        for (int j = 0; j < i; ++j)
+            s -= A[(size_t) i * n + j] * y[j];
         y[i] = s;
     }
 
     std::vector<float> x(n);
     for (int i = n - 1; i >= 0; --i) {
         float s = y[i];
-        for (int j = i + 1; j < n; ++j) s -= A_local[i * n + j] * x[j];
-        float uii = A_local[i * n + i];
-        x[i] = (fabsf(uii) < EPS) ? 0.0f : s / uii;
+        for (int j = i + 1; j < n; ++j)
+            s -= A[(size_t) i * n + j] * x[j];
+        float diag = A[(size_t) i * n + i];
+        x[i] = (std::fabs(diag) < EPS) ? 0.0f : s / diag;
     }
 
-    jfloatArray jx = env->NewFloatArray(n);
-    env->SetFloatArrayRegion(jx, 0, n, x.data());
-    return jx;
-}
+    clock_gettime(CLOCK_MONOTONIC, &t1);
 
-} // extern "C"
+    const long long elapsed_ns =
+            (t1.tv_sec - t0.tv_sec) * 1000000000LL +
+            (t1.tv_nsec - t0.tv_nsec);
+
+    free(A);
+    free(b);
+    free(B_T);
+
+    return static_cast<jlong>(elapsed_ns);
+}

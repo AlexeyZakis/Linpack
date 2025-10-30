@@ -38,7 +38,7 @@ fun LinpackInfoBtn(
         ) {
             Icon(
                 imageVector = Icons.Default.Info,
-                contentDescription = stringResource(R.string.linpackInfoBtn),
+                contentDescription = stringResource(R.string.infoBtn),
             )
         }
     }

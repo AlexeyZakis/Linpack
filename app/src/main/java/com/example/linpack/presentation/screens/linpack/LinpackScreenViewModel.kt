@@ -2,11 +2,11 @@ package com.example.linpack.presentation.screens.linpack
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.linpack.domain.models.GaussImpl
-import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.CountRequiredMemoryMBUseCase
-import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetAvailableMemoryMBUseCase
+import com.example.linpack.data.Constants
 import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetDeviceResourcesUseCase
+import com.example.linpack.domain.usecase.deviceResourcesAnalyzer.GetEstimatedCpuMFlopsUseCase
 import com.example.linpack.domain.usecase.linpackManager.CheckDevicePerformanceUseCase
+import com.example.linpack.domain.usecase.linpackManager.GetCurrentRunNumberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,40 +22,39 @@ import javax.inject.Inject
 class LinpackScreenViewModel @Inject constructor(
     private val checkDevicePerformanceUseCase: CheckDevicePerformanceUseCase,
     getDeviceResourcesUseCase: GetDeviceResourcesUseCase,
-    countRequiredMemoryMBUseCase: CountRequiredMemoryMBUseCase,
-    getAvailableMemoryMBUseCase: GetAvailableMemoryMBUseCase,
+    getEstimatedCpuMFlopsUseCase: GetEstimatedCpuMFlopsUseCase,
+    getCurrentRunNumberUseCase: GetCurrentRunNumberUseCase,
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(LinpackScreenState())
     val screenState = _screenState.asStateFlow()
 
+    val currentRunNumber = getCurrentRunNumberUseCase()
+
     val deviceResources = getDeviceResourcesUseCase()
+    val estimatedCpuMFlops = getEstimatedCpuMFlopsUseCase()
 
     init {
-        _screenState.update { screenState ->
-            screenState.copy(
-                cores = deviceResources.cores,
-                availableMemoryMB = getAvailableMemoryMBUseCase().toInt()
-            )
-        }
-        _screenState.onEach { screenState ->
-            val requiredMemoryMB = countRequiredMemoryMBUseCase(
-                matrixSize = screenState.matrixSize
-            ).toInt()
-            val enoughMemory = screenState.availableMemoryMB >= screenState.requiredMemoryMB
+        currentRunNumber.onEach { currentRunNumber ->
             _screenState.update { screenState ->
                 screenState.copy(
-                    requiredMemoryMB = requiredMemoryMB,
-                    enoughMemory = enoughMemory,
+                    currentRunNumber = currentRunNumber,
                 )
             }
         }.launchIn(viewModelScope)
+
+        _screenState.update { screenState ->
+            screenState.copy(
+                cores = deviceResources.cores,
+                estimatedCpuMFlops = estimatedCpuMFlops,
+            )
+        }
     }
 
     fun screenAction(action: LinpackScreenAction) {
         when (action) {
             is LinpackScreenAction.OnMatrixSizeChanged -> onMatrixSizeChanged(action.matrixSize)
+            is LinpackScreenAction.OnNumOfRunsChanged -> onNumOfRunsChanged(action.numOfRuns)
             is LinpackScreenAction.OnCoresChanged -> onCoresChanged(action.cores)
-            is LinpackScreenAction.OnGaussImplChanged -> onGaussImplChanged(action.gaussImpl)
             is LinpackScreenAction.OnRunClick -> onRunClick()
         }
     }
@@ -68,18 +67,18 @@ class LinpackScreenViewModel @Inject constructor(
         }
     }
 
-    private fun onCoresChanged(cores: Int) {
+    private fun onNumOfRunsChanged(numOfRuns: Int) {
         _screenState.update { screenState ->
             screenState.copy(
-                cores = cores,
+                numOfRuns = numOfRuns,
             )
         }
     }
 
-    private fun onGaussImplChanged(gaussImpl: GaussImpl) {
+    private fun onCoresChanged(cores: Int) {
         _screenState.update { screenState ->
             screenState.copy(
-                gaussImpl = gaussImpl,
+                cores = cores,
             )
         }
     }
@@ -91,14 +90,14 @@ class LinpackScreenViewModel @Inject constructor(
                     screenState.copy(
                         inProgress = true,
                         matrixSizeInProgress = screenState.matrixSize,
-                        gaussImplInProgress = screenState.gaussImpl,
+                        numOfRunsInProgress = screenState.numOfRuns,
                     )
                 }
                 val screenState = screenState.value
                 val linpackResult = checkDevicePerformanceUseCase(
                     matrixSize = screenState.matrixSize,
-                    cores = screenState.cores,
-                    gaussImpl = screenState.gaussImpl,
+                    numOfRuns = screenState.numOfRuns,
+                    seed = Constants.SEED,
                 )
                 _screenState.update { screenState ->
                     screenState.copy(

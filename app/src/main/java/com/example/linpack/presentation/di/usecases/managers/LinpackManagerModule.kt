@@ -2,6 +2,7 @@ package com.example.linpack.presentation.di.usecases.managers
 
 import com.example.linpack.domain.LinpackManager
 import com.example.linpack.domain.usecase.linpackManager.CheckDevicePerformanceUseCase
+import com.example.linpack.domain.usecase.linpackManager.GetCurrentRunNumberUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,4 +14,8 @@ class LinpackManagerModule {
     @Provides
     fun provideCheckDevicePerformanceUseCase(linpackManager: LinpackManager) =
         CheckDevicePerformanceUseCase(linpackManager = linpackManager)
+
+    @Provides
+    fun provideGetCurrentRunNumberUseCase(linpackManager: LinpackManager) =
+        GetCurrentRunNumberUseCase(linpackManager = linpackManager)
 }

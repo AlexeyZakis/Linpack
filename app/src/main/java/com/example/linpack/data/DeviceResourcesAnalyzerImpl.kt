@@ -20,6 +20,16 @@ class DeviceResourcesAnalyzerImpl : DeviceResourcesAnalyzer {
         return deviceResources
     }
 
+    override fun getEstimateCpuMFlops(): Int {
+        val cpuFrequencies = getCpuFrequencies()
+        val cpuMFlops = cpuFrequencies.map {
+            it.value
+        }.sumOf {
+            it.maxMHz
+        } * Constants.HEURISTICALLY_FLOPS_PER_CYCLE
+        return cpuMFlops
+    }
+
     override fun getCpuFrequencies(): Map<Int, CpuFrequency> {
         val result = mutableMapOf<Int, CpuFrequency>()
         val cpuCount = Runtime.getRuntime().availableProcessors()
@@ -42,11 +52,5 @@ class DeviceResourcesAnalyzerImpl : DeviceResourcesAnalyzer {
             }
         }
         return result
-    }
-
-    override fun countRequiredMemoryMB(matrixSize: Int): Double {
-        val requiredMemory = matrixSize.matrixSizeToEstimatedRequiredByte().byteToMB() +
-                Constants.ESTIMATED_MIN_REQUIRED_MEMORY
-        return requiredMemory
     }
 }

@@ -9,18 +9,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.linpack.R
-import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.presentation.screens.generalComponents.TextWithName
 import com.example.linpack.presentation.theme.AppTheme
 import com.example.linpack.presentation.theme.themeColors
-import com.example.linpack.presentation.utils.toResId
 
 @Composable
 fun Progress(
     cores: Int,
     matrixSize: Int,
-    gaussImpl: GaussImpl,
-    isPortrait: Boolean,
+    numOfRuns: Int,
+    currentRunNumber: Int,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -33,17 +31,16 @@ fun Progress(
             modifier = modifier,
         )
         TextWithName(
+            name = stringResource(R.string.run),
+            text = "$currentRunNumber/$numOfRuns"
+        )
+        TextWithName(
             name = stringResource(R.string.cores),
             text = "$cores"
         )
         TextWithName(
             name = stringResource(R.string.matrixSize),
             text = "$matrixSize"
-        )
-        TextWithName(
-            name = stringResource(R.string.gaussImplementation),
-            text = stringResource(gaussImpl.toResId()),
-            isColumn = isPortrait,
         )
     }
 }
@@ -55,8 +52,8 @@ private fun ProgressPreview() {
         Progress(
             cores = 8,
             matrixSize = 240,
-            gaussImpl = GaussImpl.DEFAULT,
-            isPortrait = false,
+            numOfRuns = 3,
+            currentRunNumber = 1,
         )
     }
 }
@@ -68,8 +65,8 @@ private fun ProgressPortraitPreview() {
         Progress(
             cores = 8,
             matrixSize = 240,
-            gaussImpl = GaussImpl.DEFAULT,
-            isPortrait = true,
+            numOfRuns = 3,
+            currentRunNumber = 1,
         )
     }
 }

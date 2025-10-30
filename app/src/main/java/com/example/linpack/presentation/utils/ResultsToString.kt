@@ -6,14 +6,20 @@ import com.example.linpack.R
 import com.example.linpack.domain.models.LinpackResult
 
 @Composable
-fun LinpackResult.toResultString(): String {
+fun toResultString(
+    result: LinpackResult.Success,
+    estimatedCpuMFlops: Int,
+    cores: Int,
+): String {
     val flops = getStringWithLabel(
-        labelResId = R.string.linpackFlops,
-        value = mFlopsToGFlops(mFlops),
+        labelResId = R.string.avgFlops,
+        value = mFlopsToGFlops(result.mFlops),
     )
-    val roundedDurationSec = "%.2f".format(durationSec)
+    val roundedDurationSec = durationToRoundedString(result.durationSec)
+    val estimatedCpuMFlopsFormated = mFlopsToGFlops(estimatedCpuMFlops.toDouble())
+
     val duration = getStringWithLabel(
-        labelResId = R.string.linpackDuration,
+        labelResId = R.string.avgDuration,
         unitOfMeasurementResId = R.string.seconds,
         value = roundedDurationSec,
     )
@@ -23,17 +29,25 @@ fun LinpackResult.toResultString(): String {
     )
     val matrixSize = getStringWithLabel(
         labelResId = R.string.matrixSize,
-        value = "$matrixSize",
+        value = "${result.matrixSize}",
     )
-    val gaussImplementation = getStringWithLabel(
-        labelResId = R.string.gaussImplementation,
-        value = stringResource(gaussImpl.toResId()),
+    val numOfRuns = getStringWithLabel(
+        labelResId = R.string.numOfRuns,
+        value = "${result.numOfRuns}",
     )
-    val result = "$flops\n" +
-            "$duration\n" +
-            "$cores\n" +
-            "$matrixSize\n" +
-            "$gaussImplementation"
+    val estimatedCpuMFlopsStr = getStringWithLabel(
+        labelResId = R.string.estimatedCpuFlops,
+        value = estimatedCpuMFlopsFormated,
+    )
+    var result = flops +
+            "\n$duration" +
+            "\n$cores" +
+            "\n$matrixSize" +
+            "\n$numOfRuns"
+
+    if (estimatedCpuMFlops != 0) {
+        result = "$result\n$estimatedCpuMFlopsStr"
+    }
     return result
 }
 

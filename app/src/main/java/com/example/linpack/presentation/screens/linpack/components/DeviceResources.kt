@@ -10,22 +10,19 @@ import androidx.compose.ui.unit.dp
 import com.example.linpack.R
 import com.example.linpack.presentation.screens.generalComponents.TextWithName
 import com.example.linpack.presentation.theme.AppTheme
-import com.example.linpack.presentation.theme.themeColors
-import com.example.linpack.presentation.theme.themeTypography
+import com.example.linpack.presentation.utils.mFlopsToGFlops
 
 @Composable
 fun DeviceResources(
     cores: Int,
-    availableMemoryMB: Int,
-    requiredMemoryMB: Int,
-    enoughMemory: Boolean,
+    estimatedCpuMFlops: Int,
     isPortrait: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val memoryColor = if (enoughMemory) {
-        themeTypography.labelPrimary.color
+    val estimatedCpuMFlopsFormated = if (estimatedCpuMFlops == 0) {
+        stringResource(R.string.estimatedCpuFlopsError)
     } else {
-        themeColors.red
+        mFlopsToGFlops(estimatedCpuMFlops.toDouble())
     }
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -36,10 +33,9 @@ fun DeviceResources(
             text = "$cores",
         )
         TextWithName(
-            name = stringResource(R.string.estimatedUsedMemory),
-            text = "${requiredMemoryMB}/${availableMemoryMB}${stringResource(R.string.MB)}",
+            name = stringResource(R.string.estimatedCpuFlops),
+            text = estimatedCpuMFlopsFormated,
             isColumn = isPortrait,
-            color = memoryColor,
         )
     }
 }
@@ -50,10 +46,8 @@ private fun DeviceResourcesPreview() {
     AppTheme {
         DeviceResources(
             cores = 8,
-            availableMemoryMB = 512,
-            requiredMemoryMB = 214,
+            estimatedCpuMFlops = 124_420,
             isPortrait = false,
-            enoughMemory = true,
         )
     }
 }
@@ -64,10 +58,8 @@ private fun DeviceResourcesPortraitPreview() {
     AppTheme {
         DeviceResources(
             cores = 8,
-            availableMemoryMB = 512,
-            requiredMemoryMB = 214,
+            estimatedCpuMFlops = 124_420,
             isPortrait = true,
-            enoughMemory = true,
         )
     }
 }
@@ -78,10 +70,8 @@ private fun DeviceResourcesNoMemoryPreview() {
     AppTheme {
         DeviceResources(
             cores = 8,
-            availableMemoryMB = 512,
-            requiredMemoryMB = 214,
+            estimatedCpuMFlops = 124_420,
             isPortrait = false,
-            enoughMemory = false,
         )
     }
 }
@@ -92,10 +82,8 @@ private fun DeviceResourcesPortraitNoMemoryPreview() {
     AppTheme {
         DeviceResources(
             cores = 8,
-            availableMemoryMB = 512,
-            requiredMemoryMB = 214,
+            estimatedCpuMFlops = 124_420,
             isPortrait = true,
-            enoughMemory = false,
         )
     }
 }

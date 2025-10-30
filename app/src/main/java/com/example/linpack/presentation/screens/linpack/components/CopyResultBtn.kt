@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.linpack.R
-import com.example.linpack.domain.models.GaussImpl
 import com.example.linpack.domain.models.LinpackResult
 import com.example.linpack.presentation.screens.generalComponents.ButtonText
 import com.example.linpack.presentation.theme.AppTheme
@@ -25,12 +24,19 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CopyResultBtn(
-    linpackResult: LinpackResult,
+    linpackResult: LinpackResult.Success,
+    estimatedCpuMFlops: Int,
+    cores: Int,
     modifier: Modifier = Modifier,
 ) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
-    val data = linpackResult.toResultString()
+    val data = toResultString(
+        result = linpackResult,
+        cores = cores,
+        estimatedCpuMFlops = estimatedCpuMFlops,
+    )
+    val linpackResultStr = stringResource(R.string.linpackResult)
 
     ButtonText(
         text = stringResource(R.string.copyResults),
@@ -39,7 +45,7 @@ fun CopyResultBtn(
             .background(themeColors.blue)
             .clickable {
                 scope.launch {
-                    val clipData = ClipData.newPlainText("Results", data)
+                    val clipData = ClipData.newPlainText(linpackResultStr, data)
                     clipboard.setClipEntry(clipData.toClipEntry())
                 }
             }
@@ -52,13 +58,13 @@ fun CopyResultBtn(
 private fun CopyResultBtnPreview() {
     AppTheme {
         CopyResultBtn(
-            linpackResult = LinpackResult(
-                cores = 4,
+            linpackResult = LinpackResult.Success(
                 matrixSize = 1000,
                 durationSec = 4.214,
                 mFlops = 6214.631,
-                gaussImpl = GaussImpl.DEFAULT,
-            )
+            ),
+            cores = 8,
+            estimatedCpuMFlops = 124_420,
         )
     }
 }
